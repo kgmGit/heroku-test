@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +18,7 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/{any}', [SpaController::class, 'index'])->where('any', '.*');
+Route::get('/{any?}', [SpaController::class, 'index'])->where('any', '.+');

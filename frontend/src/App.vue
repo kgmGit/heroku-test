@@ -1,10 +1,39 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/about">About</router-link> |
+    <span v-show="!isAuth"><router-link to="/login">Login</router-link></span>
+    <span v-show="isAuth"
+      ><a href="#" @click.prevent="logoutEvt">Logout</a></span
+    >
+    <span><a href="#" @click.prevent="test">Test</a></span>
+    <router-view />
   </div>
-  <router-view />
 </template>
+
+<script>
+import { mapGetters, mapActions } from "vuex";
+export default {
+  computed: {
+    ...mapGetters({
+      isAuth: "auth/isAuth",
+    }),
+  },
+  methods: {
+    ...mapActions({
+      logout: "auth/logout",
+      user: "auth/user",
+    }),
+    async logoutEvt() {
+      await this.logout();
+      this.$router.replace({ name: "Home" });
+    },
+    async test() {
+      await this.user();
+    },
+  },
+};
+</script>
 
 <style>
 #app {
