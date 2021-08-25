@@ -1,9 +1,10 @@
-import axios from "axios";
+import { Http as http } from "@/Services/Http";
 
 const state = {
   isAuth: false,
   user: null,
   errorMessages: null,
+  isAuthError: false,
 };
 
 const getters = {
@@ -19,6 +20,9 @@ const getters = {
   errorMessages(state) {
     return state.errorMessages;
   },
+  isAuthError(state) {
+    return state.isAuthError;
+  },
 };
 
 const mutations = {
@@ -31,55 +35,51 @@ const mutations = {
   setErrorMessages(state, value) {
     state.errorMessages = value;
   },
+  setIsAuthError(state, value) {
+    state.isAuthError = value;
+  },
 };
 
 const actions = {
   async register({ commit, dispatch }, credentials) {
     commit("setErrorMessages", null);
 
-    await axios.get("/sanctum/csrf-cookie");
-    const response = await axios
+    await http.get("/sanctum/csrf-cookie");
+    const response = await http
       .post("/register", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
     if (response.status === 201) {
       await dispatch("me");
-      return;
     }
   },
   async login({ commit, dispatch }, credentials) {
     commit("setErrorMessages", null);
 
-    await axios.get("/sanctum/csrf-cookie");
-    const response = await axios
+    await http.get("/sanctum/csrf-cookie");
+    const response = await http
       .post("/login", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
     if (response.status === 200) {
       await dispatch("me");
-      return;
     }
   },
   async logout({ commit }) {
-    await axios.get("/sanctum/csrf-cookie");
-    const response = await axios.post("/logout").catch((e) => e.response);
+    await http.get("/sanctum/csrf-cookie");
+    await http.post("/logout").catch((e) => e.response);
 
-    if (response.status === 204) {
-      commit("setIsAuth", false);
-      commit("setUser", null);
-      return;
-    }
+    commit("setIsAuth", false);
+    commit("setUser", null);
   },
   async me({ commit }) {
-    const response = await axios.get("/api/user").catch((e) => e.response);
+    const response = await http.get("/api/user").catch((e) => e.response);
     if (response.status === 200) {
       commit("setIsAuth", true);
       commit("setUser", response.data.data);
@@ -89,62 +89,57 @@ const actions = {
     }
   },
   async sendVerifyMail() {
-    await axios.post("/email/verification-notification");
+    await http.post("/email/verification-notification");
   },
   async sendResetPasswordMail({ commit }, credentials) {
     commit("setErrorMessages", null);
 
-    const response = await axios
+    const response = await http
       .post("/forgot-password", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
   },
   async resetPassword({ commit }, credentials) {
     commit("setErrorMessages", null);
 
-    const response = await axios
+    const response = await http
       .post("/reset-password", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
   },
   async updateUser({ commit }, credentials) {
     commit("setErrorMessages", null);
 
-    const response = await axios
+    const response = await http
       .put("/user/profile-information", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
   },
   async updatePassword({ commit }, credentials) {
     commit("setErrorMessages", null);
 
-    const response = await axios
+    const response = await http
       .put("/user/password", credentials)
       .catch((e) => e.response);
 
     if (response.status === 422) {
       commit("setErrorMessages", response.data.errors);
-      return;
     }
   },
   async deleteUser({ commit }) {
-    const response = await axios.delete("/user").catch((e) => e.response);
+    const response = await http.delete("/user").catch((e) => e.response);
     if (response.status === 204) {
       commit("setIsAuth", false);
       commit("setUser", null);
-      return;
     }
   },
 };

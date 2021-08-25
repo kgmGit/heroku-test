@@ -58,7 +58,6 @@ export default {
   },
   methods: {
     async submit() {
-      console.log(process.env);
       await this.$store.dispatch("auth/login", this.form);
       if (this.user) {
         this.$store.dispatch("message/setContent", "ログインしました");
