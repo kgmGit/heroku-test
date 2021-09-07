@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DeleteUser;
+use App\Http\Controllers\RoomController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +23,18 @@ Route::middleware('auth:sanctum')->group(function () {
         return new UserResource($request->user());
     });
 
-    Route::get('/test', function (Request $request) {
-        return $request->user();
-    })->middleware(['verified']);
+    Route::middleware('verified')->group(function () {
+        // email認証済みルート
+
+        // Room
+        Route::get('/rooms', [RoomController::class, 'index']);
+        Route::post('/rooms', [RoomController::class, 'store']);
+        Route::patch('/rooms/{room:name}', [RoomController::class, 'update']);
+        Route::delete('/rooms/{room:name}', [RoomController::class, 'destroy']);
+        Route::put('/rooms/{room:name}/members', [RoomController::class, 'join']);
+
+        // Comment
+        Route::get('/rooms/{room:name}/comments', [CommentController::class, 'index']);
+        Route::post('/rooms/{room:name}/comments', [CommentController::class, 'store']);
+    });
 });

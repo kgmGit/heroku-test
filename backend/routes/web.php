@@ -16,12 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-// Route::post('/login', [AuthController::class, 'login'])->name('login');
-// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::delete('/user', DeleteUser::class)->name('delete-user');
+    Route::delete('/user', DeleteUser::class);
 });
 Route::get('/{any?}', [SpaController::class, 'index'])->where('any', '.+');

@@ -10,9 +10,9 @@ class DeleteUser extends Controller
 {
     public function __invoke(Request $request)
     {
-        $user = Auth::user();
-
-        Auth::guard('web')->logout();
+        $user = auth()->user();
+        auth()->guard('web')->logout();
+        // Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
