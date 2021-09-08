@@ -37,6 +37,7 @@ class StoreTest extends TestCase
                     "data" => [
                         'id' => 1,
                         'name' => 'roomName',
+                        'locked' => false
                     ]
                 ]
             );
@@ -59,6 +60,7 @@ class StoreTest extends TestCase
                     "data" => [
                         'id' => 1,
                         'name' => $name,
+                        'locked' => true
                     ]
                 ]
             );

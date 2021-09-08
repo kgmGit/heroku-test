@@ -51,7 +51,8 @@ class UpdateTest extends TestCase
                 [
                     'data' => [
                         'id' => 1,
-                        'name' => 'changeName'
+                        'name' => 'changeName',
+                        'locked' => false
                     ]
                 ]
             );

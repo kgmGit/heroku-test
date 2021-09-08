@@ -26,10 +26,16 @@ class IndexTest extends TestCase
         $this->user2 = User::factory()->create();
 
         $this->user1->ownRooms()->saveMany(
-            Room::factory()->count(2)->make()
+            [
+                Room::factory()->make(),
+                Room::factory()->locked()->make(),
+            ]
         );
         $this->user2->ownRooms()->saveMany(
-            Room::factory()->count(1)->make()
+            [
+                Room::factory()->make(),
+                Room::factory()->locked()->make(),
+            ]
         );
 
 
@@ -37,6 +43,7 @@ class IndexTest extends TestCase
             $this->expectJsonAll[] = [
                 'id' => $room->id,
                 'name' => $room->name,
+                'locked' => !!$room->password
             ];
         }
 
@@ -44,6 +51,7 @@ class IndexTest extends TestCase
             $this->expectJsonUser1[] = [
                 'id' => $room->id,
                 'name' => $room->name,
+                'locked' => !!$room->password
             ];
         }
     }

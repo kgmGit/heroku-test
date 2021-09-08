@@ -19,14 +19,15 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'test1',
             'email' => 'test1@test.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => Carbon::now()->timestamp,
         ]);
         User::factory()->create([
             'name' => 'test2',
             'email' => 'test2@test.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => Carbon::now()->timestamp,
+        ]);
+        // email未認証ユーザ
+        User::factory()->unverified()->create([
+            'name' => 'unverified',
+            'email' => 'unverified@test.com'
         ]);
     }
 }

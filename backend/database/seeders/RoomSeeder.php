@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class RoomSeeder extends Seeder
 {
@@ -15,9 +16,18 @@ class RoomSeeder extends Seeder
      */
     public function run()
     {
-        $users = User::all();
+        $users = User::whereNotNull('email_verified_at')->get();
         foreach ($users as $user) {
-            $rooms = Room::factory()->count(rand(1, 3))->make();
+            $rooms = Room::factory()->count(10)->make();
+
+            $count = 0;
+            $rooms->each(function (Room $room) use (&$count) {
+                if ($count % 2 === 0) {
+                    $room->password = Hash::make('password');
+                }
+                $count++;
+            });
+
             $user->ownRooms()->saveMany($rooms);
         }
 
