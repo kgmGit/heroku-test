@@ -138,7 +138,25 @@ class JoinTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test異常系_パスワード不一致()
+    public function test異常系_パスワード不一致_パスワード無し()
+    {
+        $body = [
+        ];
+
+        $this->actingAs($this->user);
+        $response = $this->json('PUT', 'api/rooms/lockedRoomName/members', $body);
+
+        $response->assertStatus(422);
+
+        $roomBelongsToUser = $this->user->joiningRooms()->wherePivot(
+            'room_id',
+            Room::where('name', 'lockedRoomName')->first()->id
+        )->exists();
+
+        $this->assertFalse($roomBelongsToUser);
+    }
+
+    public function test異常系_パスワード不一致_パスワード有り()
     {
         $body = [
             'password' => 'wrongPassword',

@@ -84,8 +84,9 @@ class RoomController extends Controller
 
     public function join(JoinRequest $request, Room $room): JsonResponse
     {
-        if (array_key_exists('password', $request->validated())) {
-            $plainPassword = $request->validated()['password'];
+        if ($room->password) {
+            $plainPassword = $request->validated()['password'] ?? null;
+
             if (!Hash::check($plainPassword, $room->password)) {
                 logger()->debug('plain : ' . $plainPassword);
                 logger()->debug('room : ' . $room->password);
