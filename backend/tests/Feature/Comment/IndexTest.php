@@ -69,12 +69,14 @@ class IndexTest extends TestCase
                     'user_id' => $this->user->id,
                     'user_name' => $this->user->name,
                     'content' => $targetRoom->comments[0]->content,
+                    'created_at' => $targetRoom->comments[0]->created_at->toDateTimeString()
                 ],
                 [
                     'id' => $targetRoom->comments[1]->id,
                     'user_id' => $this->user->id,
                     'user_name' => $this->user->name,
                     'content' => $targetRoom->comments[1]->content,
+                    'created_at' => $targetRoom->comments[1]->created_at->toDateTimeString()
                 ],
             ]
         ];
@@ -85,6 +87,7 @@ class IndexTest extends TestCase
                     'user_id' => $this->user->id,
                     'user_name' => $this->user->name,
                     'content' => $targetRoom->comments[1]->content,
+                    'created_at' => $targetRoom->comments[1]->created_at->toDateTimeString()
                 ],
             ]
         ];

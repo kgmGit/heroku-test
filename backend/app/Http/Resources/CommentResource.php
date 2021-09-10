@@ -18,7 +18,8 @@ class CommentResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user->id,
             'user_name' => $this->user->name,
-            'content' => $this->content
+            'content' => $this->content,
+            'created_at' => $this->created_at->toDateTimeString()
         ];
     }
 }

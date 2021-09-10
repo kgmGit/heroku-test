@@ -42,6 +42,11 @@ class StoreTest extends TestCase
         $this->actingAs($this->user);
         $response = $this->json('post', 'api/rooms/roomName/comments', $body);
 
+        $comment = Comment::where('user_id', $this->user->id)
+            ->where('room_id', $this->user->joiningRooms[0]->id)
+            ->first();
+        $this->assertEquals($comment->content, 'comment');
+
         $response->assertStatus(201)
             ->assertExactJson(
                 [
@@ -49,15 +54,11 @@ class StoreTest extends TestCase
                         'id' => 1,
                         'user_id' => $this->user->id,
                         'user_name' => $this->user->name,
-                        'content' => 'comment'
+                        'content' => 'comment',
+                        'created_at'=> $comment->created_at->toDateTimeString()
                     ]
                 ]
             );
-
-        $comment = Comment::where('user_id', $this->user->id)
-            ->where('room_id', $this->user->joiningRooms[0]->id)
-            ->first();
-        $this->assertEquals($comment->content, 'comment');
     }
 
     public function test異常系_未ログイン()
