@@ -26,7 +26,7 @@ class CommentController extends Controller
         if (array_key_exists('time', $validated)) {
             $targetTime = new Carbon($validated['time']);
             $comments = $room->comments()
-                ->where('created_at', '>=', $targetTime)->orderBy('created_at')->get();
+                ->where('created_at', '>', $targetTime)->orderBy('created_at')->get();
         } else {
             $comments = $room->comments()
                 ->orderBy('created_at')->get();

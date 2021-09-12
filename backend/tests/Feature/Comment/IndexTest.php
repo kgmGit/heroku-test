@@ -101,10 +101,19 @@ class IndexTest extends TestCase
             ->assertExactJson($this->expectJsonAll);
     }
 
-    public function test正常系_指定日時以降のコメント取得()
+    public function test正常系_指定日時より後のコメント取得()
     {
         $this->actingAs($this->user);
         $response = $this->json('GET', 'api/rooms/roomName/comments?time=' . $this->targetTime->toDateTimeString());
+
+        $response->assertStatus(200)
+            ->assertExactJson($this->expectJsonTarget);
+    }
+
+    public function test正常系_指定日時より後のコメント取得_同じ時間()
+    {
+        $this->actingAs($this->user);
+        $response = $this->json('GET', 'api/rooms/roomName/comments?time=' . $this->oldCommentTime->toDateTimeString());
 
         $response->assertStatus(200)
             ->assertExactJson($this->expectJsonTarget);
