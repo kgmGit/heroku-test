@@ -28,26 +28,25 @@ class IndexTest extends TestCase
         parent::setUp();
 
         // テストデータ作成
-        $this->user = User::factory()->create();
-        $this->user->ownRooms()->saveMany(
-            [
-                Room::factory()->make(['name' => 'roomName']),
-                Room::factory()->make(['name' => 'otherRoomName'])
-            ]
-        );
-        $otherUser = User::factory()->create();
-        $otherUser->ownRooms()->save(
-            Room::factory()->make(['name' => 'otherUserRoomName'])
-        );
-
         $this->targetTime = Carbon::now();
         $this->oldCommentTime = $this->targetTime->copy()->subSeconds();
         $this->newCommentTime = $this->targetTime->copy()->addSeconds();
 
+        $this->user = User::factory()->create();
+        $this->user->ownRooms()->saveMany(
+            [
+                Room::factory()->make(['name' => 'notJoinRoomName']),
+                Room::factory()->make(['name' => 'roomName']),
+                Room::factory()->make(['name' => 'otherRoomName'])
+            ]
+        );
+
         /** @var Room @targetRoom */
-        $targetRoom = Room::find(1);
+        $targetRoom = Room::where(['name' => 'roomName'])->first();
         /** @var Room @otherRoom */
-        $otherRoom = Room::find(2);
+        $otherRoom = Room::where(['name' => 'otherRoomName'])->first();
+
+        $targetRoom->members()->save($this->user);
 
         $targetRoom->comments()->saveMany(
             [
@@ -140,7 +139,7 @@ class IndexTest extends TestCase
     public function test異常系_ログインユーザがルームに所属していない()
     {
         $this->actingAs($this->user);
-        $response = $this->json('GET', 'api/rooms/otherUserRoomName/comments');
+        $response = $this->json('GET', 'api/rooms/notJoinRoomName/comments');
 
         $response->assertStatus(403);
     }

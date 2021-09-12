@@ -14,9 +14,10 @@ class IndexRequest extends FormRequest
      */
     public function authorize()
     {
+
         /** @var Room $room */
         $room = $this->route('room');
-        return $room->id === auth()->id();
+        return $room->members()->wherePivot('user_id', auth()->id())->exists();
     }
 
     /**
