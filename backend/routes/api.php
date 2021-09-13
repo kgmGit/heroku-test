@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DeleteUser;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,5 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Comment
         Route::get('/rooms/{room:name}/comments', [CommentController::class, 'index']);
         Route::post('/rooms/{room:name}/comments', [CommentController::class, 'store']);
+
+        // User
+        Route::get('/rooms/{room:name}/members', [UserController::class, 'index']);
     });
 });
