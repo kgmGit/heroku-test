@@ -24,7 +24,7 @@
         <validation-errors :errors="errors && errors['password']" />
 
         <div class="float-end">
-          <custom-button :onclick="submit" class="btn btn-primary mt-3"
+          <custom-button :onclick="login" class="btn btn-primary mt-3"
             >ログイン</custom-button
           >
         </div>
@@ -48,21 +48,31 @@ export default {
         email: "",
         password: "",
       },
+      errors: null,
     };
   },
   computed: {
     ...mapGetters({
-      errors: "auth/errorMessages",
       user: "auth/user",
     }),
   },
   methods: {
-    async submit() {
-      await this.$store.dispatch("auth/login", this.form);
-      if (this.user) {
-        this.$store.dispatch("message/setContent", "ログインしました");
-        this.$router.replace({ name: "Home" });
-      }
+    async login() {
+      this.errors = null;
+
+      await this.$store
+        .dispatch("auth/login", this.form)
+        .then(() => {
+          this.$store.dispatch("message/setContent", "ログインしました");
+          this.$router.replace({ name: "Home" });
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

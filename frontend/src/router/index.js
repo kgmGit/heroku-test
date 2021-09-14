@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import store from "@/store";
 import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
 import Register from "@/views/Register.vue";
@@ -7,13 +6,10 @@ import ProfileUpdate from "@/views/ProfileUpdate.vue";
 import ForgotPassword from "@/views/ForgotPassword.vue";
 import ResetPassword from "@/views/ResetPassword.vue";
 import Error from "@/views/Error.vue";
+import RoomUpdate from "@/views/RoomUpdate.vue";
+import ChatRoom from "@/views/ChatRoom.vue";
 
 const routes = [
-  // {
-  //   path: "/",
-  //   name: "Home",
-  //   component: Home,
-  // },
   {
     path: "/login",
     name: "login",
@@ -41,6 +37,16 @@ const routes = [
     component: ResetPassword,
   },
   {
+    path: "/room-update",
+    name: "room-update",
+    component: RoomUpdate,
+  },
+  {
+    path: "/chat-room/:roomName",
+    name: "chat-room",
+    component: ChatRoom,
+  },
+  {
     path: "/error",
     name: "error",
     component: Error,
@@ -55,17 +61,6 @@ const routes = [
 const router = createRouter({
   history: createWebHistory("/"),
   routes,
-});
-
-router.beforeEach((to, from, next) => {
-  if (store.getters["auth/isAuthError"]) {
-    store.commit("auth/setIsAuthError", false);
-    store.dispatch("message/setContent", null);
-
-    next({ name: "error" });
-  } else {
-    next();
-  }
 });
 
 export default router;

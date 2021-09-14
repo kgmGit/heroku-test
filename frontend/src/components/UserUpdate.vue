@@ -2,7 +2,7 @@
   <div class="card mx-auto col-sm-6">
     <div class="card-header">ユーザ情報更新</div>
     <div class="card-body">
-      <form @submit.prevent="submit">
+      <form>
         <label for="name" class="form-label">名前</label>
         <input
           id="name"
@@ -24,7 +24,7 @@
         <validation-errors :errors="errors && errors['email']" />
 
         <div class="float-end">
-          <custom-button :onclick="submit" class="btn btn-primary mt-3"
+          <custom-button :onclick="update" class="btn btn-primary mt-3"
             >更新</custom-button
           >
         </div>
@@ -42,21 +42,34 @@ export default {
         name: null,
         email: null,
       },
+      errors: null,
     };
   },
   computed: {
     ...mapGetters({
-      errors: "auth/errorMessages",
       user: "auth/user",
     }),
   },
   methods: {
-    async submit() {
-      await this.$store.dispatch("auth/updateUser", this.form);
-      if (!this.errors) {
-        this.$store.dispatch("message/setContent", "ユーザ情報を更新しました");
-        this.$router.replace({ name: "Home" });
-      }
+    async update() {
+      this.errors = null;
+
+      await this.$store
+        .dispatch("auth/updateUser", this.form)
+        .then(() => {
+          this.$store.dispatch(
+            "message/setContent",
+            "ユーザ情報を更新しました"
+          );
+          this.$router.replace({ name: "Home" });
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
   created() {

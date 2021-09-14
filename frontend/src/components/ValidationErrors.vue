@@ -1,9 +1,6 @@
 <template>
   <div class="invalid-feedback">
-    <div
-      v-for="(item, index) in errors"
-      :key="'validationError' + index + Math.random()"
-    >
+    <div v-for="(item, index) in errors" :key="'validationError' + index">
       {{ item }}
     </div>
   </div>

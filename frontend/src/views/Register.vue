@@ -43,7 +43,7 @@
         />
 
         <div class="float-end">
-          <custom-button :onclick="submit" class="btn btn-primary mt-3"
+          <custom-button :onclick="register" class="btn btn-primary mt-3"
             >登録</custom-button
           >
         </div>
@@ -63,21 +63,31 @@ export default {
         password: "",
         password_confirmation: "",
       },
+      errors: null,
     };
   },
   computed: {
     ...mapGetters({
-      errors: "auth/errorMessages",
       user: "auth/user",
     }),
   },
   methods: {
-    async submit() {
-      await this.$store.dispatch("auth/register", this.form);
-      if (this.user) {
-        this.$store.dispatch("message/setContent", "登録しました");
-        this.$router.replace({ name: "Home" });
-      }
+    async register() {
+      this.errors = null;
+
+      await this.$store
+        .dispatch("auth/register", this.form)
+        .then(() => {
+          this.$store.dispatch("message/setContent", "登録しました");
+          this.$router.replace({ name: "Home" });
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

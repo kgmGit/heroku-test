@@ -3,7 +3,6 @@ import { Http as http } from "@/Services/Http";
 const state = {
   isAuth: false,
   user: null,
-  errorMessages: null,
   isAuthError: false,
 };
 
@@ -17,9 +16,6 @@ const getters = {
   user(state) {
     return state.user;
   },
-  errorMessages(state) {
-    return state.errorMessages;
-  },
   isAuthError(state) {
     return state.isAuthError;
   },
@@ -32,44 +28,18 @@ const mutations = {
   setUser(state, value) {
     state.user = value;
   },
-  setErrorMessages(state, value) {
-    state.errorMessages = value;
-  },
-  setIsAuthError(state, value) {
-    state.isAuthError = value;
-  },
 };
 
 const actions = {
-  async register({ commit, dispatch }, credentials) {
-    commit("setErrorMessages", null);
-
+  async register({ dispatch }, user) {
     await http.get("/sanctum/csrf-cookie");
-    const response = await http
-      .post("/register", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
-    if (response.status === 201) {
-      await dispatch("me");
-    }
+    await http.post("/register", user);
+    await dispatch("me");
   },
-  async login({ commit, dispatch }, credentials) {
-    commit("setErrorMessages", null);
-
+  async login({ dispatch }, user) {
     await http.get("/sanctum/csrf-cookie");
-    const response = await http
-      .post("/login", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
-    if (response.status === 200) {
-      await dispatch("me");
-    }
+    await http.post("/login", user);
+    await dispatch("me");
   },
   async logout({ commit }) {
     await http.get("/sanctum/csrf-cookie");
@@ -79,68 +49,38 @@ const actions = {
     commit("setUser", null);
   },
   async me({ commit }) {
-    const response = await http.get("/api/user").catch((e) => e.response);
-    if (response.status === 200) {
-      commit("setIsAuth", true);
-      commit("setUser", response.data.data);
-    } else {
-      commit("setIsAuth", false);
-      commit("setUser", null);
-    }
+    await http
+      .get("/api/user")
+      .then((response) => {
+        commit("setIsAuth", true);
+        commit("setUser", response.data.data);
+      })
+      .catch(() => {
+        commit("setIsAuth", false);
+        commit("setUser", null);
+      });
   },
   async sendVerifyMail() {
     await http.post("/email/verification-notification");
   },
-  async sendResetPasswordMail({ commit }, credentials) {
-    commit("setErrorMessages", null);
-
-    const response = await http
-      .post("/forgot-password", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
+  async sendResetPasswordMail(context, email) {
+    await http.post("/forgot-password", email);
   },
-  async resetPassword({ commit }, credentials) {
-    commit("setErrorMessages", null);
-
-    const response = await http
-      .post("/reset-password", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
+  async resetPassword(context, credentials) {
+    await http.post("/reset-password", credentials);
   },
-  async updateUser({ commit }, credentials) {
-    commit("setErrorMessages", null);
+  async updateUser({ dispatch }, credentials) {
+    await http.put("/user/profile-information", credentials);
 
-    const response = await http
-      .put("/user/profile-information", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
+    await dispatch("me");
   },
-  async updatePassword({ commit }, credentials) {
-    commit("setErrorMessages", null);
-
-    const response = await http
-      .put("/user/password", credentials)
-      .catch((e) => e.response);
-
-    if (response.status === 422) {
-      commit("setErrorMessages", response.data.errors);
-    }
+  async updatePassword(context, credentials) {
+    await http.put("/user/password", credentials);
   },
   async deleteUser({ commit }) {
-    const response = await http.delete("/user").catch((e) => e.response);
-    if (response.status === 204) {
-      commit("setIsAuth", false);
-      commit("setUser", null);
-    }
+    await http.delete("/user");
+    commit("setIsAuth", false);
+    commit("setUser", null);
   },
 };
 

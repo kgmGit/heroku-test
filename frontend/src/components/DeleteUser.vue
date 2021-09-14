@@ -13,13 +13,29 @@
 
 <script>
 export default {
+  data() {
+    return {
+      errors: null,
+    };
+  },
   methods: {
     async deleteUser() {
+      this.errors = null;
+
       if (!confirm("アカウントを削除しますか？")) return;
 
-      await this.$store.dispatch("auth/deleteUser");
-      this.$store.dispatch("message/setContent", "アカウントを削除しました");
-      this.$router.replace({ name: "Home" });
+      await this.$store
+        .dispatch("auth/deleteUser")
+        .then(() => {
+          this.$store.dispatch(
+            "message/setContent",
+            "アカウントを削除しました"
+          );
+          this.$router.replace({ name: "Home" });
+        })
+        .catch(() => {
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

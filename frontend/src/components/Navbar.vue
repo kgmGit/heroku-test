@@ -25,13 +25,16 @@
             <router-link to="/login" class="nav-link">ログイン</router-link>
           </li>
           <li v-show="isAuth" class="nav-item">
-            <a class="nav-link" href="#" @click.prevent="logoutEvt"
-              >ログアウト</a
-            >
+            <a class="nav-link" href="#" @click.prevent="logout">ログアウト</a>
           </li>
           <li v-show="isAuth" class="nav-item">
             <router-link to="/profile-update" class="nav-link"
               >ユーザ情報更新</router-link
+            >
+          </li>
+          <li v-show="isVerified" class="nav-item">
+            <router-link to="/room-update" class="nav-link"
+              >ルーム情報更新</router-link
             >
           </li>
         </ul>
@@ -47,13 +50,20 @@ export default {
   computed: {
     ...mapGetters({
       isAuth: "auth/isAuth",
+      isVerified: "auth/isVerified",
     }),
   },
   methods: {
-    async logoutEvt() {
-      await this.$store.dispatch("auth/logout");
-      this.$store.dispatch("message/setContent", "ログアウトしました");
-      this.$router.replace({ name: "Home" });
+    async logout() {
+      await this.$store
+        .dispatch("auth/logout")
+        .then(() => {
+          this.$store.dispatch("message/setContent", "ログアウトしました");
+          this.$router.replace({ name: "Home" });
+        })
+        .catch(() => {
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

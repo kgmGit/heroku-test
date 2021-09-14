@@ -14,7 +14,7 @@
         <validation-errors :errors="errors && errors['email']" />
 
         <div class="float-end">
-          <custom-button :onclick="submit" class="btn btn-primary mt-3">
+          <custom-button :onclick="sendMail" class="btn btn-primary mt-3">
             送信
           </custom-button>
         </div>
@@ -24,28 +24,31 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-
 export default {
   data() {
     return {
       form: {
         email: "",
       },
+      errors: null,
     };
   },
-  computed: {
-    ...mapGetters({
-      errors: "auth/errorMessages",
-      user: "auth/user",
-    }),
-  },
   methods: {
-    async submit() {
-      await this.$store.dispatch("auth/sendResetPasswordMail", this.form);
-      if (!this.errors) {
-        this.$store.dispatch("message/setContent", "メールを送信しました");
-      }
+    async sendMail() {
+      this.errors = null;
+
+      await this.$store
+        .dispatch("auth/sendResetPasswordMail", this.form)
+        .then(() => {
+          this.$store.dispatch("message/setContent", "メールを送信しました");
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

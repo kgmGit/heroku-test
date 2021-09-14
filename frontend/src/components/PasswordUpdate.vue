@@ -42,7 +42,7 @@
         />
 
         <div class="d-flex justify-content-end">
-          <custom-button :onclick="submit" class="btn btn-primary mt-3"
+          <custom-button :onclick="update" class="btn btn-primary mt-3"
             >更新</custom-button
           >
         </div>
@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -61,20 +60,29 @@ export default {
         password: null,
         password_confirmation: null,
       },
+      errors: null,
     };
   },
-  computed: {
-    ...mapGetters({
-      errors: "auth/errorMessages",
-    }),
-  },
   methods: {
-    async submit() {
-      await this.$store.dispatch("auth/updatePassword", this.form);
-      if (!this.errors) {
-        this.$store.dispatch("message/setContent", "パスワードを更新しました");
-        this.$router.replace({ name: "Home" });
-      }
+    async update() {
+      this.errors = null;
+
+      await this.$store
+        .dispatch("auth/updatePassword", this.form)
+        .then(() => {
+          this.$store.dispatch(
+            "message/setContent",
+            "パスワードを更新しました"
+          );
+          this.$router.replace({ name: "Home" });
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };

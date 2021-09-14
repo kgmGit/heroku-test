@@ -44,7 +44,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -53,26 +52,36 @@ export default {
         password: "",
         password_confirmation: "",
       },
+      errors: null,
     };
-  },
-  computed: {
-    ...mapGetters({
-      errors: "auth/errorMessages",
-    }),
   },
   methods: {
     async submit() {
+      this.errors = null;
+
       const data = {
         email: this.form.email,
         password: this.form.password,
         password_confirmation: this.form.password_confirmation,
         token: this.$route.query.token,
       };
-      await this.$store.dispatch("auth/resetPassword", data);
 
-      if (!this.errors) {
-        this.$router.replace({ name: "Home" });
-      }
+      await this.$store
+        .dispatch("auth/resetPassword", data)
+        .then(() => {
+          this.$router.replace({ name: "Home" });
+          this.$store.dispatch(
+            "message/setContent",
+            "パスワードを変更しました"
+          );
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+          this.$router.replace({ name: "error" });
+        });
     },
   },
 };
