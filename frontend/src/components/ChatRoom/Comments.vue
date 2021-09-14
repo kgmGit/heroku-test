@@ -4,7 +4,7 @@
       <div v-for="comment in comments" :key="comment.id" class="mb-2">
         <div class="row" :id="'comment-' + comment.id">
           <!-- 自コメント -->
-          <div v-if="user.id === comment.user_id">
+          <div v-if="user && user.id === comment.user_id">
             <div class="col-sm-7 offset-5 d-flex justify-content-end">
               <div
                 class="
