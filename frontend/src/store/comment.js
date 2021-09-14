@@ -50,7 +50,6 @@ const actions = {
     const body = {
       content: content,
     };
-    console.log("content: ", body);
     await http.post(`/api/rooms/${roomName}/comments`, body);
     commit("setIsChange", true);
   },
