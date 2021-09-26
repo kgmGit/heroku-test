@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./infra/php/Dockerfile
+    image: aws-test/app
     volumes:
       - ./backend:/work
 
@@ -11,21 +12,10 @@ services:
     build:
       context: .
       dockerfile: ./infra/nginx/Dockerfile
+    image: aws-test/web
     ports:
       - 8080:80
     volumes:
       - ./backend/public:/work/public
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
     working_dir: /work
-
-  db:
-    build:
-      context: .
-      dockerfile: ./infra/mysql/Dockerfile
-    volumes:
-      - db-store:/var/lib/mysql
-    ports:
-      - 33060:3306
-
-volumes:
-  db-store:
