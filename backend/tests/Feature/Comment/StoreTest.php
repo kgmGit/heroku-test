@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Comment;
 
+use App\Events\CommentPosted;
 use App\Http\Requests\Comment\StoreRequest;
 use App\Models\Comment;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -32,6 +34,8 @@ class StoreTest extends TestCase
         $this->user->joiningRooms()->attach(
             Room::where('name', 'roomName')->first()->id
         );
+
+        Event::fake();
     }
 
     public function test正常系_コメント投稿()
@@ -59,6 +63,8 @@ class StoreTest extends TestCase
                     ]
                 ]
             );
+
+        Event::assertDispatched(CommentPosted::class);
     }
 
     public function test異常系_未ログイン()
@@ -75,6 +81,8 @@ class StoreTest extends TestCase
             ->where('room_id', $this->user->joiningRooms[0]->id)
             ->exists();
         $this->assertFalse($existsComment);
+
+        Event::assertNotDispatched(CommentPosted::class);
     }
 
     public function test異常系_email未認証()
@@ -95,6 +103,8 @@ class StoreTest extends TestCase
             ->where('room_id', $this->user->joiningRooms[0]->id)
             ->exists();
         $this->assertFalse($existsComment);
+
+        Event::assertNotDispatched(CommentPosted::class);
     }
 
     public function test異常系_ルーム存在なし()
@@ -112,6 +122,8 @@ class StoreTest extends TestCase
             ->where('room_id', $this->user->joiningRooms[0]->id)
             ->exists();
         $this->assertFalse($existsComment);
+
+        Event::assertNotDispatched(CommentPosted::class);
     }
 
     public function test異常系_ログインユーザがルーム未参加()
@@ -129,6 +141,8 @@ class StoreTest extends TestCase
             ->where('room_id', $this->user->joiningRooms[0]->id)
             ->exists();
         $this->assertFalse($existsComment);
+
+        Event::assertNotDispatched(CommentPosted::class);
     }
 
     public function test異常系_バリデーションエラー()
@@ -146,6 +160,8 @@ class StoreTest extends TestCase
             ->where('room_id', $this->user->joiningRooms[0]->id)
             ->exists();
         $this->assertFalse($existsComment);
+
+        Event::assertNotDispatched(CommentPosted::class);
     }
 
     /**

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('chat-room-{roomName}', function ($user, $roomName) {
+    return auth()->check() &&
+        $user->joiningRooms()->where('name', $roomName)->exists();
 });

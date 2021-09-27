@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentPosted;
 use App\Http\Requests\Comment\IndexRequest;
 use App\Http\Requests\Comment\StoreRequest;
 use App\Http\Resources\CommentResource;
@@ -53,6 +54,9 @@ class CommentController extends Controller
         $comment->user()->associate(auth()->user());
         $room->comments()->save($comment);
 
-        return new CommentResource($comment);
+        $commentResource = new CommentResource($comment);
+        CommentPosted::dispatch($commentResource, $room);
+
+        return $commentResource;
     }
 }

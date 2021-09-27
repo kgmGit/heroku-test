@@ -29,22 +29,14 @@ export default {
     return {
       comments: [],
       users: null,
-      intervalId: null,
-      latestCommentId: null,
     };
   },
   methods: {
     async getComments() {
-      const newComments = await this.$store.dispatch(
+      this.comments = await this.$store.dispatch(
         "comment/get",
         this.$route.params.roomName
       );
-
-      if (newComments.length > 0) {
-        this.comments = this.comments.concat(newComments);
-
-        this.latestCommentId = newComments[newComments.length - 1].id;
-      }
     },
     async getUsers() {
       this.users = await this.$store.dispatch(
@@ -54,7 +46,6 @@ export default {
     },
   },
   async created() {
-    this.$store.dispatch("comment/ini");
     try {
       await this.getComments();
       await this.getUsers();
@@ -62,21 +53,15 @@ export default {
       this.$router.replace({ name: "error" });
     }
 
-    if (!process.env.VUE_APP_TIME_REFETCH_COMMENTS) {
-      console.error("環境変数が読み込めませんでした");
-      this.$router.replace({ name: "error" });
-    }
-    this.intervalId = setInterval(() => {
-      try {
-        this.getComments();
-        this.getUsers();
-      } catch (e) {
-        this.$router.replace({ name: "error" });
+    window.Echo.private(`chat-room-${this.$route.params.roomName}`).listen(
+      "CommentPosted",
+      async (response) => {
+        this.comments.push(response.comment);
+        if (!this.users.find((user) => user.id === response.comment.user_id)) {
+          await this.getUsers();
+        }
       }
-    }, process.env.VUE_APP_TIME_REFETCH_COMMENTS);
-  },
-  beforeUnmount() {
-    clearInterval(this.intervalId);
+    );
   },
 };
 </script>
