@@ -18,9 +18,9 @@ const mutations = {
 
 const actions = {
   async getRooms({ commit }, user_id = null) {
-    const queryParam = user_id ? `?user_id=${user_id}` : "";
+    const queryParam = user_id ? `?user-id=${user_id}` : "";
 
-    const response = await http.get(`/api/rooms/${queryParam}`);
+    const response = await http.get(`/api/rooms${queryParam}`);
     commit("setIsChange", false);
 
     return response.data.data;
